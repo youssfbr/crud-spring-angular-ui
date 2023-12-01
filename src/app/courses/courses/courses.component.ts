@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 import { CoursesService } from './../services/courses.service';
 import { Component } from '@angular/core';
 import { Course } from '../models/course';
@@ -8,6 +8,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncPipe, CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { DIALOG_DATA } from '@angular/cdk/dialog';
+import { ErrorDialogComponent } from '../../shared/components/error-dialog/error-dialog.component';
 
 
 
@@ -31,8 +34,24 @@ export class CoursesComponent {
 
   displayedColumns = ['name', 'category'];
 
-  constructor(private coursesService: CoursesService) {
-    this.courses$ = this.coursesService.list();
+  constructor(
+    private coursesService: CoursesService,
+    public dialog: MatDialog
+    ) {
+    this.courses$ = this.coursesService
+      .list()
+      .pipe(
+        catchError(error => {
+          this.onError('Erro ao carregar cursos.');
+          return of ([])
+      })
+    );
+  }
+
+  onError(errorMsg: string) {
+    this.dialog.open(ErrorDialogComponent, {
+      data: errorMsg
+    })
   }
 
 }
