@@ -10,10 +10,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ErrorDialogComponent } from '../../shared/components/error-dialog/error-dialog.component';
 import { CategoryPipe } from "../../shared/pipes/category.pipe";
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 
 
 
@@ -27,22 +29,27 @@ import { CategoryPipe } from "../../shared/pipes/category.pipe";
         MatTableModule,
         MatToolbarModule,
         MatProgressSpinnerModule,
+        MatButtonModule,
         MatIconModule,
         AsyncPipe,
         CommonModule,
-        CategoryPipe
+        CategoryPipe,
+        RouterModule
     ]
 })
 export class CoursesComponent {
 
   courses$: Observable<Course[]>;
 
-  displayedColumns = ['name', 'category'];
+  displayedColumns = ['_id','name', 'category', 'actions'];
 
   constructor(
     private coursesService: CoursesService,
-    public dialog: MatDialog
-    ) {
+    public dialog: MatDialog,
+    private router: Router,
+    private route: ActivatedRoute
+
+  ) {
     this.courses$ = this.coursesService
       .list()
       .pipe(
@@ -57,6 +64,10 @@ export class CoursesComponent {
     this.dialog.open(ErrorDialogComponent, {
       data: errorMsg
     })
+  }
+
+  onAdd(): void {
+    this.router.navigate([ 'new', { relativeTo: this.route }]);
   }
 
 }
